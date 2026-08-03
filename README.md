@@ -68,31 +68,128 @@ npm run build
 Tudo em `src/utils/constants.ts`:
 
 
-typescript
-Copiar
+## ⚙️ Configuração (DATA-DRIVEN)
 
+Tudo em `src/utils/constants.ts`:
+
+```typescript
 export const DEFAULT_CONFIG = {
+  // ============================================
+  // CONFIGURAÇÃO DE ROLOS
+  // ============================================
   REEL_COUNT: 3,
   SYMBOLS: ['🍎', '🍒', '🍋', '🍊', '🍓', '🍌', '🍉', '⭐', '💎', '👑'],
   SYMBOL_HEIGHT: 80,
   VISIBLE_SYMBOLS: 7,
+
+  // ============================================
+  // CONFIGURAÇÃO DE ANIMAÇÃO (SPIN)
+  // ============================================
   SPIN_DURATION: 3,
-  // ... mais
+  ACCELERATION_DURATION: 0.5,
+  DECELERATION_DURATION: 1,
+  MAX_VELOCITY: 800,
+
+  // ============================================
+  // CONFIGURAÇÃO DE PARADA SEQUENCIAL (STOP)
+  // ============================================
+  TRANSITION_DELAY: 300,
+  STOP_DELAY_BETWEEN_REELS: 0.3,
+  STOP_DURATION: 0.5,
+
+  // ============================================
+  // CONFIGURAÇÃO DE LAYOUT
+  // ============================================
+  get CONTAINER_WIDTH(): number {
+    const reelWidth = 80;
+    const spacing = 30;
+    const totalWidth = this.REEL_COUNT * reelWidth + (this.REEL_COUNT - 1) * spacing;
+    return totalWidth + 100;
+  },
+
+  get CONTAINER_HEIGHT(): number {
+    const contentHeight = this.SYMBOL_HEIGHT * this.VISIBLE_SYMBOLS;
+    return contentHeight + 50;
+  },
+
+  REEL_SPACING: 30,
+
+  // ============================================
+  // CONFIGURAÇÃO VISUAL (UI)
+  // ============================================
+  get POPUP_WIDTH(): number {
+    const reelWidth = 80;
+    const spacing = 30;
+    const totalWidth = this.REEL_COUNT * reelWidth + (this.REEL_COUNT - 1) * spacing;
+    const calculatedWidth = totalWidth + 150;
+    return Math.max(calculatedWidth, 600);
+  },
+
+  get POPUP_HEIGHT(): number {
+    const contentHeight = this.SYMBOL_HEIGHT * this.VISIBLE_SYMBOLS;
+    return Math.max(contentHeight + 50, 400);
+  },
+
+  OVERLAY_ALPHA: 0.5,
+  OVERLAY_COLOR: 0x000000,
 };
-
-
-
+```
 
 **Altere aqui e tudo se ajusta automaticamente!**
 
+### Exemplos de Uso
+
+```typescript
+// Aumentar número de rolos
+REEL_COUNT: 5,  // ✅ Automático!
+
+// Alterar símbolos
+SYMBOLS: ['🎰', '🎲', '🃏', '🎯', '🎪'],
+
+// Mudar duração do spin
+SPIN_DURATION: 5,  // 5 segundos
+
+// Alterar símbolos visíveis
+VISIBLE_SYMBOLS: 5,  // Mostrar 5 símbolos
+```
+
+
 ## 🔄 Fluxo de Execução
 Usuário clica em GIRAR ↓
+
 StateMachine: IDLE → SPINNING ↓
-SlotMachine.spin(targetResult)
-Todos os rolos animam em paralelo ↓
-Parada sequencial (rolo 1 → rolo 2 → rolo 3) ↓
+
+SlotMachine.spin(targetResult) ├─ Todos os rolos animam em paralelo (Promise.all) ↓
+
+Parada sequencial ├─ Rolo 1 para ├─ Rolo 2 para ├─ Rolo 3 para ↓
+
 StateMachine: SPINNING → SETTLING → RESULT → IDLE ↓
+
 WinLine mostra resultado no meio dos rolos
+
+### Descrição Detalhada
+
+**Fase 1: Iniciação**
+- Usuário clica no botão GIRAR
+- Estado muda para SPINNING
+- Botão é desabilitado
+
+**Fase 2: Animação**
+- SlotMachine.spin() é chamado com resultado alvo
+- Todos os 3 rolos animam **em paralelo** usando Promise.all()
+- Cada rolo tem duração diferente (efeito cascata)
+
+**Fase 3: Parada Sequencial**
+- Rolos param **um por um** (não simultâneo)
+- Delay entre paradas: 0.3s
+- Efeito visual de "cascata" de parada
+
+**Fase 4: Resultado**
+- StateMachine transiciona: SPINNING → SETTLING → RESULT → IDLE
+- WinLine mostra qual símbolo parou no meio
+- Botão é re-habilitado
+- Pronto para novo spin
+
 ## 📊 Trade-offs
 
 | Decisão | Por quê |
