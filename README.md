@@ -135,13 +135,3 @@ MIT
 
 **Última atualização**: Agosto 2026  
 **Versão**: 1.0.0
-Decisão	Por quê
-Loop infinito (20x)	Suavidade > performance
-Factories com validação	Previne bugs de dados inválidos
-Getters dinâmicos	Manutenibilidade > performance
-State Machine	Segurança > simplicidade
-
-Exportar
-
-Copiar
-✅ Como Usar Este README
