@@ -47,10 +47,6 @@ Um slot machine interativo com arquitetura modular, 100% TypeScript e totalmente
 
 ## 🚀 Como Usar
 
-
-bash
-Copiar
-
 # Instalar
 npm install
 
@@ -59,8 +55,6 @@ npm run dev
 
 # Build
 npm run build
-
-
 
 
 ## ⚙️ Configuração (DATA-DRIVEN)
