@@ -1,3 +1,2 @@
-// src/components/slot/index.ts
-
-export { SlotMachine, type SlotMachineResultCallback } from './SlotMachine';
+export * from './SlotMachine';
+export * from './WinLine';

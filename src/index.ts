@@ -2,9 +2,9 @@
 
 // Exporta todos os tipos e factories
 export * from './models';
-export { SlotState } from './utils/SlotState';
-export { StateMachine } from './utils/StateMachine';
-export type { StateCallback } from './utils/StateMachine';
+export { SlotState } from './states/SlotState';
+export { StateMachine } from './states/StateMachine';
+export type { StateCallback } from './states/StateMachine';
 export { DEFAULT_CONFIG, SYMBOL_COLORS } from './utils/constants';
 export * from './utils/helpes';
 
