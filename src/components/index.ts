@@ -1,23 +1,11 @@
-// src/components/index.ts
-
-export { BaseComponent } from './BaseComponent';
-
-// Popup
-export { Overlay } from './popup/Overlay';
-export { Panel, type PanelConfig } from './popup/Panel';
-export { Popup } from './popup/Popup';
-
-// Button
-export {
-  SpinButton,
-  type SpinButtonConfig,
-  type SpinButtonCallback,
-} from './button/SpinButton';
-
-// Reel
-export { ReelSymbol } from './reel/ReelSymbol';
-export { ReelContainer } from './reel/ReelContainer';
-export { Reel } from './reel/Reel';
-
-// SlotMachine
-export { SlotMachine, type SlotMachineResultCallback } from './slot/SlotMachine';
+export * from './BaseComponent';
+export * from './reel/Reel';
+export * from './reel/ReelAnimator';
+export * from './reel/ReelContainer';
+export * from './reel/ReelSymbol';
+export * from './slot/SlotMachine';
+export * from './slot/WinLine';
+export * from './button/SpinButton';
+export * from './popup/Overlay';
+export * from './popup/Panel';
+export * from './popup/Popup';

@@ -1,6 +1,6 @@
 // src/states/StateMachine.ts
 
-import { SlotStateType } from '../models/types';
+import { SlotStateType } from '../models';
 import { SlotState } from './SlotState';
 
 /**
