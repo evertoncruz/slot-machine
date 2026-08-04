@@ -1,21 +1,13 @@
 // src/core/Game.ts
 
 import { Application } from 'pixi.js';
-import { Popup } from '../components/popup/Popup';
-import { SlotMachine } from '../components/slot/SlotMachine';
-import { SpinButton } from '../components/button/SpinButton';
-import { StateMachine } from '../states/StateMachine';
-import { ReelConfigFactory } from '../models/ReelConfig';
-import { SlotMachineConfigFactory } from '../models/SlotMachineConfig';
-import { SlotStateType, type SlotMachineConfig, type SpinResult } from '../models/types';
-import { DEFAULT_CONFIG } from '../utils/constants';
-import type { PanelConfig, SpinButtonConfig } from '../components';
+import { Popup, SlotMachine, SpinButton, type PanelConfig, type SpinButtonConfig } from '../components';
+import { StateMachine } from '../states';
+import { ReelConfigFactory, SlotMachineConfigFactory, SlotStateType, type SlotMachineConfig, type SpinResult } from '../models';
+import { Logger, DEFAULT_CONFIG } from '../utils';  // ✅ NOVO: Import
 
 /**
  * Game — Orquestrador principal do jogo
- * ✅ Responsabilidade ÚNICA: Orquestrar componentes
- * ✅ NÃO é um service (não tem lógica de negócio)
- * ✅ NÃO é um component (não renderiza)
  */
 export class Game {
   private app: Application;
@@ -23,6 +15,8 @@ export class Game {
   private slotMachine: SlotMachine | null = null;
   private spinButton: SpinButton | null = null;
   private stateMachine: StateMachine | null = null;
+  private panelContent: any | null = null;
+  private logger = Logger.createModuleLogger('Game');  // ✅ NOVO: Logger
 
   constructor(app: Application) {
     this.app = app;
@@ -32,7 +26,7 @@ export class Game {
    * Inicializa o jogo
    */
   async start(): Promise<void> {
-    console.log('🎮 Game iniciando...');
+    this.logger.info('🎮 Game iniciando...');  // ✅ NOVO: Logger
 
     this.setupPopup();
     this.setupSlotMachine();
@@ -40,14 +34,14 @@ export class Game {
     this.setupStateMachine();
     this.connectEventListeners();
 
-    console.log('✅ Game iniciado com sucesso!');
+    this.logger.info('✅ Game iniciado com sucesso!');  // ✅ NOVO: Logger
   }
 
   /**
-   * Setup do popup
+   * Setup do popup e painel
    */
   private setupPopup(): void {
-    console.log('📊 Setup Popup...');
+    this.logger.info('📊 Setup Popup...');  // ✅ NOVO: Logger
 
     this.popup = new Popup(this.app.canvas.width, this.app.canvas.height);
     this.app.stage.addChild(this.popup);
@@ -61,14 +55,22 @@ export class Game {
       cornerRadius: 10,
     };
 
-    this.popup.addPanel(panelConfig);
+    this.logger.debug('Panel Config:', {  // ✅ NOVO: Logger com dados
+      width: panelConfig.width,
+      height: panelConfig.height,
+      reel_count: DEFAULT_CONFIG.REEL_COUNT,
+    });
+
+    this.panelContent = this.popup.addPanel(panelConfig);
+
+    this.logger.info('✅ Popup.addPanel() chamado');  // ✅ NOVO: Logger
   }
 
   /**
    * Setup do slot machine
    */
   private setupSlotMachine(): void {
-    console.log('🎰 Setup SlotMachine...');
+    this.logger.info('🎰 Setup SlotMachine...');  // ✅ NOVO: Logger
 
     const reels = Array(DEFAULT_CONFIG.REEL_COUNT)
       .fill(null)
@@ -89,23 +91,16 @@ export class Game {
       DEFAULT_CONFIG.POPUP_HEIGHT
     );
 
-    const panelContent = this.popup!.addPanel({
-      width: DEFAULT_CONFIG.POPUP_WIDTH,
-      height: DEFAULT_CONFIG.POPUP_HEIGHT,
-      backgroundColor: 0xdaa520,
-      borderColor: 0x8b4513,
-      borderWidth: 3,
-      cornerRadius: 10,
-    });
+    this.panelContent.addChild(this.slotMachine);
 
-    panelContent.addChild(this.slotMachine);
+    this.logger.info('✅ SlotMachine criada e adicionada ao painel');  // ✅ NOVO: Logger
   }
 
   /**
    * Setup do botão spin
    */
   private setupSpinButton(): void {
-    console.log('🔘 Setup SpinButton...');
+    this.logger.info('🔘 Setup SpinButton...');  // ✅ NOVO: Logger
 
     const spinButtonConfig: SpinButtonConfig = {
       width: 120,
@@ -123,60 +118,53 @@ export class Game {
     this.spinButton.x = (DEFAULT_CONFIG.POPUP_WIDTH - spinButtonConfig.width) / 2;
     this.spinButton.y = DEFAULT_CONFIG.POPUP_HEIGHT - 80;
 
-    const panelContent = this.popup!.addPanel({
-      width: DEFAULT_CONFIG.POPUP_WIDTH,
-      height: DEFAULT_CONFIG.POPUP_HEIGHT,
-      backgroundColor: 0xdaa520,
-      borderColor: 0x8b4513,
-      borderWidth: 3,
-      cornerRadius: 10,
-    });
+    this.panelContent.addChild(this.spinButton);
 
-    panelContent.addChild(this.spinButton);
+    this.logger.info('✅ SpinButton criado e adicionado ao painel');  // ✅ NOVO: Logger
   }
 
   /**
    * Setup da state machine
    */
   private setupStateMachine(): void {
-    console.log('🔄 Setup StateMachine...');
+    this.logger.info('🔄 Setup StateMachine...');  // ✅ NOVO: Logger
     this.stateMachine = new StateMachine();
+    this.logger.info('✅ StateMachine criada');  // ✅ NOVO: Logger
   }
 
   /**
    * Conecta event listeners
    */
   private connectEventListeners(): void {
-    console.log('🎧 Conectando event listeners...');
+    this.logger.info('🎧 Conectando event listeners...');  // ✅ NOVO: Logger
 
-    // State machine listeners
     this.stateMachine!.on(SlotStateType.SPINNING, () => {
-      console.log('🎬 Estado: SPINNING');
+      this.logger.info('🎬 Estado: SPINNING');  // ✅ NOVO: Logger
       this.spinButton!.setEnabled(false);
     });
 
     this.stateMachine!.on(SlotStateType.SETTLING, () => {
-      console.log('🎬 Estado: SETTLING');
+      this.logger.info('🎬 Estado: SETTLING');  // ✅ NOVO: Logger
     });
 
     this.stateMachine!.on(SlotStateType.RESULT, () => {
-      console.log('🎬 Estado: RESULT');
+      this.logger.info('🎬 Estado: RESULT');  // ✅ NOVO: Logger
     });
 
     this.stateMachine!.on(SlotStateType.IDLE, () => {
-      console.log('🎬 Estado: IDLE');
+      this.logger.info('🎬 Estado: IDLE');  // ✅ NOVO: Logger
       this.spinButton!.setEnabled(true);
     });
 
-    // Spin button listener
     this.spinButton!.setOnClick(async () => {
       await this.handleSpin();
     });
 
-    // Slot machine result listener
     this.slotMachine!.setOnResult((result) => {
-      console.log('🎉 Resultado final:', result);
+      this.logger.info('🎉 Resultado final:', result);  // ✅ NOVO: Logger
     });
+
+    this.logger.info('✅ Event listeners conectados');  // ✅ NOVO: Logger
   }
 
   /**
@@ -184,7 +172,7 @@ export class Game {
    */
   private async handleSpin(): Promise<void> {
     if (!this.stateMachine!.is(SlotStateType.IDLE)) {
-      console.warn('⚠️ Não pode girar agora');
+      this.logger.warn('⚠️ Não pode girar agora');  // ✅ NOVO: Logger (WARN)
       return;
     }
 
@@ -197,7 +185,7 @@ export class Game {
       }),
     };
 
-    console.log('🎲 Resultado alvo:', targetResult);
+    this.logger.debug('🎲 Resultado alvo:', targetResult);  // ✅ NOVO: Logger (DEBUG)
 
     await this.slotMachine!.spin(targetResult);
 
